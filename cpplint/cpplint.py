@@ -56,7 +56,7 @@ import unicodedata
 _USAGE = """
 Syntax: cpplint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
                    [--counting=total|toplevel|detailed] [--root=subdir]
-                   [--linelength=digits]
+                   [--linelength=digits] [--project=name]
         <file> [file] ...
 
   The style guidelines this tries to follow are those in
@@ -500,6 +500,9 @@ _line_length = 80
 # The allowed extensions for file names
 # This is set by --extensions flag.
 _valid_extensions = set(['cc', 'h', 'cpp', 'cu', 'cuh'])
+
+# Project name used for checking header guard CPP variable.
+_project = None
 
 def ParseNolintSuppressions(filename, raw_line, linenum, error):
   """Updates the global list of error-suppressions.
@@ -1671,7 +1674,11 @@ def GetHeaderGuardCPPVariable(filename):
   file_path_from_root = fileinfo.RepositoryName()
   if _root:
     file_path_from_root = re.sub('^' + _root + os.sep, '', file_path_from_root)
-  return re.sub(r'[^a-zA-Z0-9]', '_', file_path_from_root).upper() + '_'
+  header_guard_barring_project = re.sub(r'[^a-zA-Z0-9]', '_', file_path_from_root).upper() + '_'
+  if _project:
+    return _project.upper() + '_' + header_guard_barring_project
+  else:
+    return header_guard_barring_project
 
 
 def CheckForHeaderGuard(filename, clean_lines, error):
@@ -6289,6 +6296,9 @@ def ParseArguments(args):
           _valid_extensions = set(val.split(','))
       except ValueError:
           PrintUsage('Extensions must be comma seperated list.')
+    elif opt == '--project':
+      global _project
+      _project = val
 
   if not filenames:
     PrintUsage('No files were specified.')
