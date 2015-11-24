@@ -6255,7 +6255,8 @@ def ParseArguments(args):
                                                  'filter=',
                                                  'root=',
                                                  'linelength=',
-                                                 'extensions='])
+                                                 'extensions=',
+                                                 'project='])
   except getopt.GetoptError:
     PrintUsage('Invalid arguments.')
 
